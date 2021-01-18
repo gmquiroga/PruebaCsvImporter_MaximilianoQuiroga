@@ -4,7 +4,7 @@ using System.Data;
 using System.Reflection;
 using System.Text;
 
-namespace CsvImporter
+namespace System.Linq
 {
     public class ObjectShredder<T>
     {

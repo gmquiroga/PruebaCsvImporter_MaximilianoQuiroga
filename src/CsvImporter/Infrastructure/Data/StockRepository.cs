@@ -31,7 +31,7 @@ namespace CsvImporter.Infrastructure.Data
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection, SqlBulkCopyOptions.TableLock, null))
                 {
                     bulkCopy.DestinationTableName = STOCK_TABLE_NAME;
-                    bulkCopy.BatchSize = 5000;
+                    //bulkCopy.BatchSize = 5000;
                     await bulkCopy.WriteToServerAsync(stockTable);
                 }
 
