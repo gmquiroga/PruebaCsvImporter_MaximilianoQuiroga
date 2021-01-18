@@ -53,15 +53,4 @@ namespace CsvImporter.Infrastructure.Services
             }
         }
     }
-
-    public class StockMap : ClassMap<StockDto>
-    {
-        public StockMap()
-        {
-            Map(sm => sm.PointOfSale).Name("PointOfSale");
-            Map(sm => sm.Product).Name("Product");
-            Map(sm => sm.Date).Name("Date");
-            Map(sm => sm.Stock).Name("Stock");
-        }
-    }
 }

@@ -25,43 +25,18 @@ namespace CsvImporter.Services
         {
             int batchSize = 5000000;
             DataTable stockTable;
+            int index = 0;
 
             await this.stockRespository.TruncateAsync();
 
             using (var stockStream = await this.stockProvider.GetStockStream())
             {
-                for (int index = 0; index < 18000000; index += batchSize)
+                while ((stockTable = this.csvDataProvider.GetDataRange(stockStream, index, batchSize)).Rows.Count > 0)
                 {
-                    stockTable = this.csvDataProvider.GetDataRange(stockStream, index, batchSize);
-
                     await this.stockRespository.BulkInsertAsync(stockTable);
-                }   
+                    index = index + batchSize;
+                }
             }
-        }
-
-        //public async Task ImportStock()
-        //{
-        //    DataTable stockTable;
-
-        //    await this.stockRespository.TruncateAsync();
-
-        //    using (var stockStream = await this.stockProvider.GetStockStream())
-        //    { 
-        //        stockTable = this.csvDataProvider.GetDataTable(stockStream, this.GetStockDataTableStructure());
-        //    }
-
-        //    await this.stockRespository.BulkInsertAsync(stockTable);
-        //}
-
-        private DataTable GetStockDataTableStructure()
-        {
-            DataTable stockDataTable = new DataTable();
-            stockDataTable.Columns.Add("PointOfSale", typeof(string));
-            stockDataTable.Columns.Add("Product", typeof(string));
-            stockDataTable.Columns.Add("Date", typeof(DateTime));
-            stockDataTable.Columns.Add("Stock", typeof(int));
-
-            return stockDataTable;
         }
     }
 }

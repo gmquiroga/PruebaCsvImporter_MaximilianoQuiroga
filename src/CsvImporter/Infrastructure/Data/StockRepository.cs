@@ -1,4 +1,5 @@
 ﻿using CsvImporter.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,11 +12,13 @@ namespace CsvImporter.Infrastructure.Data
 {
     public class StockRepository : IStockRespository
     {
+        private readonly ILogger<StockRepository> logger;
         private readonly SqlConnection connection;
         private const string STOCK_TABLE_NAME = "dbo.Stock";
 
-        public StockRepository(SqlConnection connection)
+        public StockRepository(ILogger<StockRepository> logger, SqlConnection connection)
         {
+            this.logger = logger;
             this.connection = connection;
         }
 
@@ -25,7 +28,7 @@ namespace CsvImporter.Infrastructure.Data
             {
                 this.connection.Open();
 
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection/*, SqlBulkCopyOptions.TableLock, null*/))
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection, SqlBulkCopyOptions.TableLock, null))
                 {
                     bulkCopy.DestinationTableName = STOCK_TABLE_NAME;
                     bulkCopy.BatchSize = 5000;
@@ -36,7 +39,8 @@ namespace CsvImporter.Infrastructure.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                this.logger.LogError(exception, "Error bulk insert stock table");
+                throw;
             }
         }
 
@@ -54,7 +58,8 @@ namespace CsvImporter.Infrastructure.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                this.logger.LogError(exception, "Error truncate stock table");
+                throw;
             }
         }
 
