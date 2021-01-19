@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddCustomOptions(this IServiceCollection services, IConfiguration configuration) 
         {
             services.Configure<StorageSettings>(configuration.GetSection(nameof(StorageSettings)));
+            services.Configure<SqlBulkSettings>(configuration.GetSection(nameof(SqlBulkSettings)));
 
             return services;
         }

@@ -1,5 +1,7 @@
-﻿using CsvImporter.Interfaces;
+﻿using CsvImporter.Configuration;
+using CsvImporter.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,12 +16,14 @@ namespace CsvImporter.Infrastructure.Data
     {
         private readonly ILogger<StockRepository> logger;
         private readonly SqlConnection connection;
+        private readonly SqlBulkSettings sqlBulkSettings;
         private const string STOCK_TABLE_NAME = "dbo.Stock";
 
-        public StockRepository(ILogger<StockRepository> logger, SqlConnection connection)
+        public StockRepository(ILogger<StockRepository> logger, SqlConnection connection, IOptions<SqlBulkSettings> sqlBulkSettings)
         {
             this.logger = logger;
             this.connection = connection;
+            this.sqlBulkSettings = sqlBulkSettings.Value;
         }
 
         public async Task BulkInsertAsync(IDataReader stockReader)
@@ -29,9 +33,9 @@ namespace CsvImporter.Infrastructure.Data
                 this.connection.Open();
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection, SqlBulkCopyOptions.TableLock, null))
                 {
-                    //bulkCopy.BulkCopyTimeout = 120;
+                    bulkCopy.BulkCopyTimeout = this.sqlBulkSettings.Timeout;
+                    bulkCopy.BatchSize = this.sqlBulkSettings.BatchSize;
                     bulkCopy.DestinationTableName = STOCK_TABLE_NAME;
-                    bulkCopy.BatchSize = 50000;
                     await bulkCopy.WriteToServerAsync(stockReader);
                 }
 
