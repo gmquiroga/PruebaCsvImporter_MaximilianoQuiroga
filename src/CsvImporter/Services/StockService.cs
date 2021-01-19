@@ -26,25 +26,18 @@ namespace CsvImporter.Services
 
         public async Task ImportStock()
         {
-            int batchSize = 6000000;
-            DataTable stockTable;
-            int index = 0;
-
             this.logger.LogDebug("Start truncate stock table");
             await this.stockRespository.TruncateAsync();
             this.logger.LogDebug("Finish truncate stock table");
 
             this.logger.LogDebug("Start insert stock process");
             using (var stockStream = await this.stockProvider.GetStockStream())
-            {
-                this.logger.LogDebug("Start get data range from stock stream");
-
-                while ((stockTable = this.csvDataProvider.GetDataRange(stockStream, index, batchSize)).Rows.Count > 0)
+            {                
+                using (var dataReader = this.csvDataProvider.GetData(stockStream))
                 {
                     this.logger.LogDebug("Start bulk insert");
-                    await this.stockRespository.BulkInsertAsync(stockTable);
+                    await this.stockRespository.BulkInsertAsync(this.csvDataProvider.GetData(stockStream));
                     this.logger.LogDebug("Finish bulk insert");
-                    index = index + batchSize;
                 }
             }
             this.logger.LogDebug("Finish insert stock process");

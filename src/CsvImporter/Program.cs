@@ -40,17 +40,15 @@ namespace CsvImporter
                 .CreateLogger();
 
             var services = new ServiceCollection();
-
+            
             services.AddLogging(configure => configure.AddSerilog());
             services.AddCustomOptions(configuration);
             services.AddCustomServices(configuration);
-
+            
             var serviceProvider = services.BuildServiceProvider();
-
+            
             var stockService = serviceProvider.GetService<IStockService>();
             stockService.ImportStock().GetAwaiter().GetResult();
-            
         }
-
     }
 }

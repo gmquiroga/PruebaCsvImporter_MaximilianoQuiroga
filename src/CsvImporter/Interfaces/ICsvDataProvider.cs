@@ -8,6 +8,6 @@ namespace CsvImporter.Interfaces
 {
     public interface ICsvDataProvider
     {
-        DataTable GetDataRange(Stream sourceCsvStream, int index, int count);
+        IDataReader GetData(Stream sourceCsvStream);
     }
 }

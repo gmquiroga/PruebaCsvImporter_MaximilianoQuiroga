@@ -22,17 +22,17 @@ namespace CsvImporter.Infrastructure.Data
             this.connection = connection;
         }
 
-        public async Task BulkInsertAsync(DataTable stockTable)
+        public async Task BulkInsertAsync(IDataReader stockReader)
         {
-            try 
+            try
             {
                 this.connection.Open();
-
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection, SqlBulkCopyOptions.TableLock, null))
                 {
+                    //bulkCopy.BulkCopyTimeout = 120;
                     bulkCopy.DestinationTableName = STOCK_TABLE_NAME;
-                    //bulkCopy.BatchSize = 5000;
-                    await bulkCopy.WriteToServerAsync(stockTable);
+                    bulkCopy.BatchSize = 50000;
+                    await bulkCopy.WriteToServerAsync(stockReader);
                 }
 
                 this.connection.Close();

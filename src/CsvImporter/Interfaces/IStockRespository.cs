@@ -8,7 +8,7 @@ namespace CsvImporter.Interfaces
 {
     public interface IStockRespository
     {
-        Task BulkInsertAsync(DataTable stockTable);
+        Task BulkInsertAsync(IDataReader stockReader);
         Task TruncateAsync();
     }
 }
