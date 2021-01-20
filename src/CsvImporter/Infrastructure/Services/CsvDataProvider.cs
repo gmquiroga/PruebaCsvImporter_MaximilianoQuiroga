@@ -29,6 +29,8 @@ namespace CsvImporter.Infrastructure.Services
 
         public IDataReader GetData(Stream sourceCsvStream)
         {
+            if (sourceCsvStream == null) throw new NoNullAllowedException();
+
             this.logger.LogDebug("GetData from stock stream....");
             sourceCsvStream.Seek(0, SeekOrigin.Begin);
 

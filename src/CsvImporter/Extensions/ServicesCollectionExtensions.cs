@@ -28,10 +28,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             string connectionString = configuration["Data:ConnectionString"];
             services.AddScoped((sp) => new SqlConnection(connectionString));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IStockRespository, StockRepository>();
             
-            //services.AddScoped<IStockProvider, AzureStorageStockProvider>();
-            services.AddScoped<IStockProvider, LocalStorageStockProvider>();
+            services.AddScoped<IStockProvider, AzureStorageStockProvider>();
+            // For local testing
+            //services.AddScoped<IStockProvider, LocalStorageStockProvider>();
 
             services.AddScoped<ICsvDataProvider, CsvDataProvider>();
             services.AddScoped<IStockService, StockService>();

@@ -10,5 +10,6 @@ namespace CsvImporter.Interfaces
     {
         Task BulkInsertAsync(IDataReader stockReader);
         Task TruncateAsync();
+        IUnitOfWork UnitOfWork { get;  }
     }
 }

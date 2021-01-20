@@ -26,21 +26,34 @@ namespace CsvImporter.Services
 
         public async Task ImportStock()
         {
-            this.logger.LogDebug("Start truncate stock table");
-            await this.stockRespository.TruncateAsync();
-            this.logger.LogDebug("Finish truncate stock table");
+            try
+            {
+                this.stockRespository.UnitOfWork.BeginTransaction();
 
-            this.logger.LogDebug("Start insert stock process");
-            using (var stockStream = await this.stockProvider.GetStockStream())
-            {                
-                using (var dataReader = this.csvDataProvider.GetData(stockStream))
+                this.logger.LogDebug("Start truncate stock table");
+                await this.stockRespository.TruncateAsync();
+                this.logger.LogDebug("Finish truncate stock table");
+
+                this.logger.LogDebug("Start insert stock process");
+                using (var stockStream = await this.stockProvider.GetStockStream())
                 {
-                    this.logger.LogDebug("Start bulk insert");
-                    await this.stockRespository.BulkInsertAsync(this.csvDataProvider.GetData(stockStream));
-                    this.logger.LogDebug("Finish bulk insert");
+                    using (var dataReader = this.csvDataProvider.GetData(stockStream))
+                    {
+                        this.logger.LogDebug("Start bulk insert");
+                        await this.stockRespository.BulkInsertAsync(dataReader);
+                        this.logger.LogDebug("Finish bulk insert");
+                    }
                 }
+                this.logger.LogDebug("Finish insert stock process");
+
+                this.stockRespository.UnitOfWork.Commit();
             }
-            this.logger.LogDebug("Finish insert stock process");
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "Error import stock");
+                this.stockRespository.UnitOfWork.Rollback();
+            }
+            
         }
     }
 }

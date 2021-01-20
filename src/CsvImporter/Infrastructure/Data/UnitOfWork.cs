@@ -2,16 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Text;
 
 namespace CsvImporter.Infrastructure.Data
 {
     public class UnitOfWork: IUnitOfWork
     {
-        public IDbConnection Connection { get; private set; }
-        public IDbTransaction Transaction { get; private set; }
+        public SqlConnection Connection { get; private set; }
+        public SqlTransaction Transaction { get; private set; }
 
-        public UnitOfWork(IDbConnection dbConnection)
+        public UnitOfWork(SqlConnection dbConnection)
         {
             Connection = dbConnection;
 
@@ -21,7 +22,7 @@ namespace CsvImporter.Infrastructure.Data
             }
         }
 
-        public IDbTransaction BeginTransaction()
+        public SqlTransaction BeginTransaction()
         {
             if (Transaction != null)
             {
@@ -72,9 +73,16 @@ namespace CsvImporter.Infrastructure.Data
             if (Transaction != null)
             {
                 Transaction.Dispose();
+                Transaction = null;
             }
 
-            Transaction = null;
+            if (Connection != null)
+            {
+                Connection.Close();
+                Connection = null;
+            }
+
+            
         }
 
     }

@@ -28,27 +28,39 @@ namespace CsvImporter
     {
         static void Main(string[] args)
         {
-            
-            var configuration = new ConfigurationBuilder()
+            try
+            {
+                var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .AddUserSecrets<Program>()
                 .Build();
 
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
+                Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(configuration)
+                    .CreateLogger();
 
-            var services = new ServiceCollection();
+                var services = new ServiceCollection();
+
+                services.AddLogging(configure => configure.AddSerilog());
+                services.AddCustomOptions(configuration);
+                services.AddCustomServices(configuration);
+
+                var serviceProvider = services.BuildServiceProvider();
+
+                var stockService = serviceProvider.GetService<IStockService>();
+
+                Console.WriteLine("Importing stocks to database...");
+
+                stockService.ImportStock().GetAwaiter().GetResult();
+
+                Console.WriteLine("Finish to import stocks");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
             
-            services.AddLogging(configure => configure.AddSerilog());
-            services.AddCustomOptions(configuration);
-            services.AddCustomServices(configuration);
-            
-            var serviceProvider = services.BuildServiceProvider();
-            
-            var stockService = serviceProvider.GetService<IStockService>();
-            stockService.ImportStock().GetAwaiter().GetResult();
         }
     }
 }

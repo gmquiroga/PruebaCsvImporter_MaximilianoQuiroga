@@ -15,14 +15,19 @@ namespace CsvImporter.Infrastructure.Data
     public class StockRepository : IStockRespository
     {
         private readonly ILogger<StockRepository> logger;
-        private readonly SqlConnection connection;
+        private readonly IUnitOfWork unitOfWork;
         private readonly SqlBulkSettings sqlBulkSettings;
         private const string STOCK_TABLE_NAME = "dbo.Stock";
 
-        public StockRepository(ILogger<StockRepository> logger, SqlConnection connection, IOptions<SqlBulkSettings> sqlBulkSettings)
+        public IUnitOfWork UnitOfWork
+        {
+            get{ return this.unitOfWork; }
+        }
+
+        public StockRepository(ILogger<StockRepository> logger, IUnitOfWork unitOfWork, IOptions<SqlBulkSettings> sqlBulkSettings)
         {
             this.logger = logger;
-            this.connection = connection;
+            this.unitOfWork = unitOfWork;
             this.sqlBulkSettings = sqlBulkSettings.Value;
         }
 
@@ -30,16 +35,13 @@ namespace CsvImporter.Infrastructure.Data
         {
             try
             {
-                this.connection.Open();
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.connection, SqlBulkCopyOptions.TableLock, null))
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(this.unitOfWork.Connection, SqlBulkCopyOptions.TableLock, this.unitOfWork.Transaction))
                 {
                     bulkCopy.BulkCopyTimeout = this.sqlBulkSettings.Timeout;
                     bulkCopy.BatchSize = this.sqlBulkSettings.BatchSize;
                     bulkCopy.DestinationTableName = STOCK_TABLE_NAME;
                     await bulkCopy.WriteToServerAsync(stockReader);
                 }
-
-                this.connection.Close();
             }
             catch (Exception exception)
             {
@@ -52,13 +54,9 @@ namespace CsvImporter.Infrastructure.Data
         {
             try
             {
-                this.connection.Open();
-
-                SqlCommand truncateCommand = new SqlCommand($"TRUNCATE TABLE {STOCK_TABLE_NAME}", this.connection);
+                SqlCommand truncateCommand = new SqlCommand($"TRUNCATE TABLE {STOCK_TABLE_NAME}", this.unitOfWork.Connection, this.unitOfWork.Transaction);
 
                 await truncateCommand.ExecuteNonQueryAsync();
-
-                this.connection.Close();
             }
             catch (Exception exception)
             {

@@ -36,6 +36,7 @@ namespace CsvImporter.Providers
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "Error open stock file : {0}", this.storageSettings.FilePath);
+                throw;
             }
 
             return await Task.FromResult(resultStream);

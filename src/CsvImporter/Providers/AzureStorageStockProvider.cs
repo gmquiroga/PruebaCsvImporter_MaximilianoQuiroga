@@ -15,10 +15,10 @@ namespace CsvImporter.Providers
     public class AzureStorageStockProvider: IStockProvider
     {
         private readonly StorageSettings storageSettings;
-        private readonly ILogger<LocalStorageStockProvider> logger;
+        private readonly ILogger<AzureStorageStockProvider> logger;
         private readonly BlockBlobClient blockBlobClient;
 
-        public AzureStorageStockProvider(ILogger<LocalStorageStockProvider> logger, IOptions<StorageSettings> storageSettings)
+        public AzureStorageStockProvider(ILogger<AzureStorageStockProvider> logger, IOptions<StorageSettings> storageSettings)
         {
             this.storageSettings = storageSettings.Value;
             this.logger = logger;
@@ -34,12 +34,14 @@ namespace CsvImporter.Providers
                 options.InitialTransferLength = 1024 * 1024;
                 options.MaximumConcurrency = 30;
                 options.MaximumTransferLength = 4 * 1024 * 1024;
-
+                this.logger.LogDebug("Start download from azure blob");
                 await this.blockBlobClient.DownloadToAsync(resultStream, null, options);
+                this.logger.LogDebug("Finish download from azure blob");
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "Error getting stock file : {0}", this.storageSettings.FilePath);
+                throw new FileNotFoundException($"Error getting stock file : {this.storageSettings.FilePath}", exception);
             }
             
             return resultStream;
