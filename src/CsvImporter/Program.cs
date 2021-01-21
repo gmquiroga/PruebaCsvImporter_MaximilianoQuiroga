@@ -1,26 +1,10 @@
-﻿using Azure.Storage;
-using Azure.Storage.Blobs.Specialized;
-using CsvHelper;
-using CsvHelper.Configuration;
-using CsvImporter.Interfaces;
-using CsvImporter.Models;
+﻿using CsvImporter.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
-using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TinyCsvParser;
-using TinyCsvParser.Mapping;
 using Microsoft.Extensions.Logging;
 using Serilog;
-
 
 namespace CsvImporter
 {
@@ -63,7 +47,6 @@ namespace CsvImporter
             {
                 logger.LogInformation(exception.Message);
             }
-            
         }
     }
 }
