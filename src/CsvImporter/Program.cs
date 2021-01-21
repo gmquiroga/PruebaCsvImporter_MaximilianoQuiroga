@@ -26,6 +26,8 @@ namespace CsvImporter
 {
     class Program
     {
+        private static ILogger<Program> logger;
+
         static void Main(string[] args)
         {
             try
@@ -49,16 +51,17 @@ namespace CsvImporter
                 var serviceProvider = services.BuildServiceProvider();
 
                 var stockService = serviceProvider.GetService<IStockService>();
+                logger = serviceProvider.GetService<ILogger<Program>>();
 
-                Console.WriteLine("Importing stocks to database...");
+                logger.LogInformation("Importing stocks to database...");
 
                 stockService.ImportStock().GetAwaiter().GetResult();
 
-                Console.WriteLine("Finish to import stocks");
+                logger.LogInformation("Finish to import stocks");
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.Message);
+                logger.LogInformation(exception.Message);
             }
             
         }

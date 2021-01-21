@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Configure<StorageSettings>(configuration.GetSection(nameof(StorageSettings)));
             services.Configure<SqlBulkSettings>(configuration.GetSection(nameof(SqlBulkSettings)));
+            services.Configure<BlobDownloadTransferOptions>(configuration.GetSection(nameof(BlobDownloadTransferOptions)));
 
             return services;
         }

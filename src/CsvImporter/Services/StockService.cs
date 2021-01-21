@@ -30,21 +30,21 @@ namespace CsvImporter.Services
             {
                 this.stockRespository.UnitOfWork.BeginTransaction();
 
-                this.logger.LogDebug("Start truncate stock table");
+                this.logger.LogInformation("Start truncate stock table");
                 await this.stockRespository.TruncateAsync();
-                this.logger.LogDebug("Finish truncate stock table");
+                this.logger.LogInformation("Finish truncate stock table");
 
-                this.logger.LogDebug("Start insert stock process");
+                this.logger.LogInformation("Start insert stock process");
                 using (var stockStream = await this.stockProvider.GetStockStream())
                 {
                     using (var dataReader = this.csvDataProvider.GetData(stockStream))
                     {
-                        this.logger.LogDebug("Start bulk insert");
+                        this.logger.LogInformation("Start bulk insert");
                         await this.stockRespository.BulkInsertAsync(dataReader);
-                        this.logger.LogDebug("Finish bulk insert");
+                        this.logger.LogInformation("Finish bulk insert");
                     }
                 }
-                this.logger.LogDebug("Finish insert stock process");
+                this.logger.LogInformation("Finish insert stock process");
 
                 this.stockRespository.UnitOfWork.Commit();
             }
